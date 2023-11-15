@@ -18,7 +18,9 @@ class SettingSap(SettingService):
 
 class SettingBNA(SettingService):
     def __init__(self) -> None:
-        self.__settings = dict.fromkeys(["key1"])
+        self.__settings = dict.fromkeys(["Foreign_Bills", "Foreign_Exchange"])
+        self.settings["Foreign_Bills"] = ["Euro", "Real *"]
+        self.settings["Foreign_Exchange"] = ["Dolar U.S.A", "Libra Esterlina", "Euro"]
 
     @property
     def settings(self) -> dict:
@@ -44,4 +46,4 @@ class SettingBCRA(SettingService):
         self.__settings = setting
     
     def __str__(self) -> str:
-        return "Setting BNA"
+        return "Setting BCRA"
