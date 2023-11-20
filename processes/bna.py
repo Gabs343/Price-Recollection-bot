@@ -2,8 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from settings import SettingBNA
-
 class BnaProcess:
     def __init__(self) -> None:
         self.url = "https://www.bna.com.ar/Personas"
