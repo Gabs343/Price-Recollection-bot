@@ -10,7 +10,7 @@ class SettingSap(SettingService):
         return self.__settings
     
     @settings.setter
-    def settings(self, setting) -> None:
+    def settings(self, setting: dict) -> None:
         self.__settings = setting
         
     def __str__(self) -> str:
@@ -19,15 +19,15 @@ class SettingSap(SettingService):
 class SettingBNA(SettingService):
     def __init__(self) -> None:
         self.__settings = dict.fromkeys(["Foreign_Bills", "Foreign_Exchange"])
-        self.settings["Foreign_Bills"] = ["Euro", "Real *"]
-        self.settings["Foreign_Exchange"] = ["Dolar U.S.A", "Libra Esterlina", "Euro"]
+        self.__settings["Foreign_Bills"] = ["Euro", "Real *"]
+        self.__settings["Foreign_Exchange"] = ["Dolar U.S.A", "Libra Esterlina", "Euro"]
 
     @property
     def settings(self) -> dict:
         return self.__settings
     
     @settings.setter
-    def settings(self, setting) -> None:
+    def settings(self, setting: dict) -> None:
         self.__settings = setting
     
     def __str__(self) -> str:
@@ -35,14 +35,16 @@ class SettingBNA(SettingService):
     
 class SettingBCRA(SettingService):
     def __init__(self) -> None:
-        self.__settings = dict.fromkeys(["key1"])
+        self.__settings = dict.fromkeys(["Coins", "Date"])
+        self.__settings["Date"] = "15-08-2023"
+        self.__settings["Coins"] = ["Bolívar Venezolano", "Franco Suizo", "Libra Esterlina"]
 
     @property
     def settings(self) -> dict:
         return self.__settings
     
     @settings.setter
-    def settings(self, setting) -> None:
+    def settings(self, setting: dict) -> None:
         self.__settings = setting
     
     def __str__(self) -> str:
