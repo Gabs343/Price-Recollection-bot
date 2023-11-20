@@ -2,6 +2,7 @@ import time
 
 from settings import *
 from processes.bna import BnaProcess
+from processes.bcra import BcraProcess
         
 class Main:
     __settings_services: list[SettingService] = []
@@ -26,12 +27,20 @@ class Main:
         
     def start(self) -> None:
         
+        '''
         bna = BnaProcess()
         bna.open()
         print(bna.get_foreign_bills_for(self.get_setting(SettingBNA).settings["Foreign_Bills"]))
         print(bna.get_foreign_exchanges_for(self.get_setting(SettingBNA).settings["Foreign_Exchange"]))
         bna.close()
-
+        '''
+        
+        bcra = BcraProcess()
+        bcra.open()
+        bcra.go_to_exchange_rate_by_date_section()
+        bcra.set_date_in_calendar(self.get_setting(SettingBCRA).settings["Date"])
+        print(bcra.get_exchange_rates_for(self.get_setting(SettingBCRA).settings["Coins"]))
+        bcra.close()
             
     def get_setting(self, setting_type: SettingService) -> SettingService:
         #gives StopIteration Exception
