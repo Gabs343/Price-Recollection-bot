@@ -46,7 +46,7 @@ class BcraProcess:
             
         return new_dict
     
-    def get_exchange_rates_for(self, requests: list[str]):
+    def get_exchange_rates_for(self, requests: list[str]) -> dict:
         exchanges = self.get_all_exchange_rates()
         return {r: exchanges[r] for r in requests if r in exchanges}    
             
@@ -90,6 +90,6 @@ class BcraProcess:
                         'Septiembre','Octubre','Noviembre','Diciembre']
         return spanish_months[month]
     
-    def __validate_date_format(self, date: str):
+    def __validate_date_format(self, date: str) -> None:
         if date != datetime.strptime(date, '%d-%m-%Y').strftime('%d-%m-%Y'):
             raise ValueError
