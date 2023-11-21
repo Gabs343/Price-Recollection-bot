@@ -30,21 +30,22 @@ class Main:
         '''
         bna = BnaProcess()
         bna.open()
-        print(bna.get_foreign_bills_for(self.get_setting(SettingBNA).settings["Foreign_Bills"]))
-        print(bna.get_foreign_exchanges_for(self.get_setting(SettingBNA).settings["Foreign_Exchange"]))
+        print(bna.get_foreign_bills_for(self.get_settings(SettingBNA)["Foreign_Bills"]))
+        print(bna.get_foreign_exchanges_for(self.get_settings(SettingBNA)["Foreign_Exchange"]))
         bna.close()
         '''
         
         bcra = BcraProcess()
         bcra.open()
         bcra.go_to_exchange_rate_by_date_section()
-        bcra.set_date_in_calendar(self.get_setting(SettingBCRA).settings["Date"])
-        print(bcra.get_exchange_rates_for(self.get_setting(SettingBCRA).settings["Coins"]))
+        bcra.set_date_in_calendar(self.get_settings(SettingBCRA)["Date"])
+        print(bcra.get_exchange_rates_for(self.get_settings(SettingBCRA)["Coins"]))
         bcra.close()
             
-    def get_setting(self, setting_type: SettingService) -> SettingService:
+    def get_settings(self, setting_type: SettingService) -> dict:
         #gives StopIteration Exception
-        return next(setting for setting in self.settings_services if isinstance(setting, setting_type))
+        service = next(setting for setting in self.settings_services if isinstance(setting, setting_type)) 
+        return service.settings
     
 
 if __name__ == "__main__":
