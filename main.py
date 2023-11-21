@@ -3,6 +3,7 @@ import time
 from settings import *
 from processes.bna import BnaProcess
 from processes.bcra import BcraProcess
+from processes.sap import Sap
         
 class Main:
     __settings_services: list[SettingService] = []
@@ -27,20 +28,23 @@ class Main:
         
     def start(self) -> None:
         
-        '''
         bna = BnaProcess()
         bna.open()
-        print(bna.get_foreign_bills_for(self.get_settings(SettingBNA)["Foreign_Bills"]))
-        print(bna.get_foreign_exchanges_for(self.get_settings(SettingBNA)["Foreign_Exchange"]))
+        print(bna.get_foreign_bills_for(self.get_settings(SettingBNA)["foreignBills"]))
+        print(bna.get_foreign_exchanges_for(self.get_settings(SettingBNA)["foreignExchange"]))
         bna.close()
-        '''
         
         bcra = BcraProcess()
         bcra.open()
         bcra.go_to_exchange_rate_by_date_section()
-        bcra.set_date_in_calendar(self.get_settings(SettingBCRA)["Date"])
-        print(bcra.get_exchange_rates_for(self.get_settings(SettingBCRA)["Coins"]))
+        bcra.set_date_in_calendar(self.get_settings(SettingBCRA)["date"])
+        print(bcra.get_exchange_rates_for(self.get_settings(SettingBCRA)["coins"]))
         bcra.close()
+        
+        sap = Sap()
+        sap.login(credentials=self.get_settings(SettingSap))
+        sap.set_transaction("")
+        sap.new_register()
             
     def get_settings(self, setting_type: SettingService) -> dict:
         #gives StopIteration Exception
