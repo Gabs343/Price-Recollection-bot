@@ -11,7 +11,7 @@ class Sap:
         self.__wait = 1
         self.__pages = 1
         
-    def login(self, credentials: dict):
+    def login(self, credentials: dict) -> None:
         connection = self.__open_connection(connection=credentials["connection"])
 
         self._session = connection.Children(0)
@@ -31,19 +31,19 @@ class Sap:
         self.__session.findById("wnd[0]").sendVKey(0)
         time.sleep(self.__wait)
         
-    def go_to_main(self):
+    def go_to_main(self) -> None:
         self.go_back(loop=self.__pages)
         self.page = 1
         
-    def go_back(self, loop: int = 1):
+    def go_back(self, loop: int = 1) -> None:
         for i in range(loop):
             self.__session.findById("wnd[0]/tbar[0]/btn[15]").press()
             
-    def logout(self):
+    def logout(self) -> None:
         self.go_to_main()
         self.__session.findById("wnd[1]/usr/btnSPOP-OPTION1").press()
         
-    def new_register(self):
+    def new_register(self) -> None:
         self.__session.findById("wnd[0]/tbar[1]/btn[5]").press()
   
     def __open_connection(self, connection: str) -> win32com.client.CDispatch:
