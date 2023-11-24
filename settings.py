@@ -3,6 +3,7 @@ class SettingService: pass
 class SettingSap(SettingService):
     
     def __init__(self) -> None:
+        SettingService.__init__()
         self.__settings = dict.fromkeys(["user", "password", "client", "language", "connection"])
     
     @property
@@ -18,6 +19,7 @@ class SettingSap(SettingService):
 
 class SettingBNA(SettingService):
     def __init__(self) -> None:
+        SettingService.__init__()
         self.__settings = dict.fromkeys(["foreignBills", "foreignExchange"])
         self.__settings["foreignBills"] = ["Euro", "Real *"]
         self.__settings["foreignExchange"] = ["Dolar U.S.A", "Libra Esterlina", "Euro"]
@@ -35,6 +37,7 @@ class SettingBNA(SettingService):
     
 class SettingBCRA(SettingService):
     def __init__(self) -> None:
+        SettingService.__init__()
         self.__settings = dict.fromkeys(["coins", "date"])
         self.__settings["date"] = "15-08-2023"
         self.__settings["coins"] = ["Bolívar Venezolano", "Franco Suizo", "Libra Esterlina"]
@@ -49,3 +52,7 @@ class SettingBCRA(SettingService):
     
     def __str__(self) -> str:
         return "Setting BCRA"
+    
+class SettingBot(SettingService):
+    def __init__(self) -> None:
+        SettingService.__init__()

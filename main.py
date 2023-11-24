@@ -1,14 +1,15 @@
 import time
-
+import schedule
 from datetime import datetime
 from settings import *
+from log import *
 from processes.bna import BnaProcess
 from processes.bcra import BcraProcess
 from processes.sap import Sap
-from log import LogTxt, LogXlsx
-        
+
 class Main:
     __settings_services: list[SettingService] = []
+    __logs: list[Log] = []
     __bot_name = "BOT_1"
     __status = "READY"
     
@@ -29,10 +30,9 @@ class Main:
         return self.__status
     
     def start(self) -> None:
-        self.logTxt = LogTxt(name=f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}')
-        self.logXlsx = LogXlsx(name=f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}')
-        self.logTxt.create()
-        self.logXlsx.create()
+        self.create_logs()
+        self.logXlsx: LogXlsx = self.get_log(LogXlsx)
+        self.logTxt: LogTxt = self.get_log(LogTxt)
         
         self.data = {}
         
@@ -41,9 +41,22 @@ class Main:
         
         print(self.data)
         
-        self.logTxt.close()
-        self.logXlsx.close()
- 
+        self.close_logs()
+        
+    def restart(self) -> None:
+        self.create_logs()
+        self.logXlsx: LogXlsx = self.get_log(LogXlsx)
+        self.logTxt: LogTxt = self.get_log(LogTxt)
+    
+    def create_logs(self) -> None:
+        for log in (LogTxt, LogXlsx):
+            log_object = log(name=f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}')
+            self.__logs.append(log_object)
+            log_object.create()
+            
+    def close_logs(self) -> None:
+        for log in self.__logs:
+            log.close()
         
     def do_bna_procces(self):
         try:
@@ -62,12 +75,15 @@ class Main:
             
             self.logXlsx.write_info(message='Bna Process')
             self.logTxt.write_info(message='Bna process completed')
+            
         except KeyError as e:
             self.logXlsx.write_error(message='Bna Process', detail='Key error')
             self.logTxt.write_error(message=f'Key Error: {e}')
+            
         except StopIteration as e:
             self.logXlsx.write_error(message='Bna Process', detail='Problem with BNA Settings')
             self.logTxt.write_error(message=e)
+            
         except Exception as e:
             self.logXlsx.write_error(message='Bna Process', detail='Unknown error')
             self.logTxt.write_error(message=e)
@@ -89,12 +105,15 @@ class Main:
             
             self.logXlsx.write_info(message='Bcra Process')
             self.logTxt.write_info(message='Bcra process completed')
+            
         except KeyError as e:
             self.logXlsx.write_error(message='Bna Process', detail='Key error')
             self.logTxt.write_error(message=f'Key Error: {e}')
+            
         except StopIteration as e:
             self.logXlsx.write_error(message="Settings not found", detail="Problem with BCRA Settings")
             self.logTxt.write_error(message=e)
+            
         except Exception as e:
             self.logXlsx.write_error(message="Bcra Process", detail="Unknown error")
             self.logTxt.write_error(message=e)
@@ -105,9 +124,11 @@ class Main:
             sap.login(credentials=self.get_settings(SettingSap))
             sap.set_transaction("")
             sap.new_register()
+            
         except StopIteration as e:
             self.logXlsx.write_error(message="Settings not found", detail="Problem with SAP Settings")
             self.logTxt.write_error(message=e)
+            
         except Exception as e:
             self.logXlsx.write_error(message="Sap Process", detail="Unknown error")
             self.logTxt.write_error(message=e)
@@ -115,6 +136,9 @@ class Main:
     def get_settings(self, setting_type: SettingService) -> dict:
         service = next(setting for setting in self.settings_services if isinstance(setting, setting_type)) 
         return service.settings
+    
+    def get_log(self, log_type: Log) -> Log:
+        return next(log for log in self.__logs if isinstance(log, log_type)) 
     
 
 if __name__ == "__main__":
@@ -124,4 +148,3 @@ if __name__ == "__main__":
     et = time.time()
     elapsed_time = et - st
     print('Execution time:', elapsed_time, 'seconds')
-    
