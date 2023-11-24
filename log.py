@@ -11,7 +11,7 @@ class Log:
 
 class LogTxt(Log):
     def __init__(self, name: str) -> None:
-        self.__path = '.\\logs\\logsText'
+        self.__path = '.\\logs\\logsTxt'
         self.__name = name
         self.__logger = None
         
@@ -34,7 +34,7 @@ class LogTxt(Log):
         some_data = None
         if(args): 
             self.write_info(message=f'executing function: {function.__name__} with arguments: {args}')
-            some_data = function(args[0])
+            some_data = function(*args)
         else:
             self.write_info(message=f'executing function: {function.__name__} with no arguments: {args}') 
             some_data = function()
