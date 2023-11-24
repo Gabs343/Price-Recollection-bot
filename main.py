@@ -1,5 +1,4 @@
 import time
-import schedule
 from datetime import datetime
 from settings import *
 from log import *
