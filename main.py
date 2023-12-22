@@ -13,9 +13,8 @@ class Main:
     __status_callback = None
     
     def __init__(self) -> None:
-        for setting in (SettingBot, SettingSap, SettingBNA, SettingBCRA):
-            self.__settings_services.append(setting())
-            self.callback = None
+        settings_classes: tuple = (BotSetting, TaskManagerSetting, SapSetting, BNASetting, BCRASetting)
+        self.__settings_services = [service(bot_name=self.__bot_name) for service in settings_classes]
         
     @property   
     def settings_services(self) -> list[SettingService]:
@@ -42,11 +41,10 @@ class Main:
         self.__status_callback = callback
         
     def start(self) -> None:
-        self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
-        self.__notify_status("RUNNING")
+        self.__execution_begun()
 
-        self.logXlsx: LogXlsx = self.__get_log(LogXlsx)
-        self.logTxt: LogTxt = self.__get_log(LogTxt)
+        self.logXlsx: LogXlsx = self.__get_log_service(LogXlsx)
+        self.logTxt: LogTxt = self.__get_log_service(LogTxt)
         
         self.data = {}
         
@@ -55,24 +53,20 @@ class Main:
         
         print(self.data)
         
-        self.close_logs()
-        self.__notify_status("READY")
-            
-    def close_logs(self) -> None:
-        for log in self.__logs_services:
-            log.close()
+        self.__execution_completed()
+
         
     def do_bna_procces(self):
         try:
             self.__execute_action(function=self.logTxt.write_info, message='The Bna process has begun')
             self.data['bna'] = {}
             
-            settings = self.__execute_action(function=self.__get_setting, setting_type=SettingBNA)
+            setting_service = self.__execute_action(function=self.__get_setting_service, setting_type=BNASetting)
 
             bna = BnaProcess()
             self.__execute_action(function=bna.open)
-            foreign_bills = self.__execute_action(function=bna.get_foreign_bills_for, requests=settings['foreignBills'])            
-            foreign_exchanges = self.__execute_action(function=bna.get_foreign_exchanges_for, requests=settings['foreignExchange'])
+            foreign_bills = self.__execute_action(function=bna.get_foreign_bills_for, requests=setting_service.settings['foreignBills'])            
+            foreign_exchanges = self.__execute_action(function=bna.get_foreign_exchanges_for, requests=setting_service.settings['foreignExchange'])
             self.__execute_action(function=bna.close)
             
             self.data['bna']['foreignBills'] = foreign_bills
@@ -97,13 +91,13 @@ class Main:
         try:
             self.__execute_action(function=self.logTxt.write_info, message='The Bcra process has begun')
             self.data['bcra'] = {}
-            settings = self.__execute_action(function=self.__get_setting, setting_type=SettingBCRA)
+            setting_service = self.__execute_action(function=self.__get_setting_service, setting_type=BCRASetting)
             
             bcra = BcraProcess()
             self.__execute_action(function=bcra.open)
             self.__execute_action(function=bcra.go_to_exchange_rate_by_date_section)
-            self.__execute_action(function=bcra.set_date_in_calendar, date=settings['date'])
-            exchange_rates = self.__execute_action(function=bcra.get_exchange_rates_for, requests=settings["coins"])
+            self.__execute_action(function=bcra.set_date_in_calendar, date=setting_service.settings['date'])
+            exchange_rates = self.__execute_action(function=bcra.get_exchange_rates_for, requests=setting_service.settings["coins"])
             self.__execute_action(function=bcra.close)
             
             self.data['bcra']['exchange_rates'] = exchange_rates
@@ -126,7 +120,7 @@ class Main:
     def do_sap_procces(self):
         try:
             sap = Sap()
-            sap.login(credentials=self.__get_setting(SettingSap))
+            sap.login(credentials=self.__get_setting_service(SapSetting))
             sap.set_transaction("")
             sap.new_register()
             
@@ -147,28 +141,48 @@ class Main:
     def stop(self):
         self.__notify_status(new_status='CLOSING BOT')
         
+    def __execution_begun(self) -> None:
+        self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
+        bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
+        bot_setting_service.settings['executions'] += 1
+        self.__notify_status(new_status="RUNNING")
+        
+    def __execution_completed(self, had_error: bool = False):
+        bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
+        if(had_error):  
+            bot_setting_service.settings['bad_executions'] += 1
+        else:
+            bot_setting_service.settings['good_executions'] += 1
+            
+        bot_setting_service.update()
+        self.__notify_status(new_status="READY")
+        self.__close_logs()
+        
     def __notify_status(self, new_status: str) -> None:
         self.__status = new_status
-        logTxt: LogTxt = self.__get_log(log_type=LogTxt)
+        logTxt: LogTxt = self.__get_log_service(log_type=LogTxt)
         logTxt.write_info(message=f'Bot {new_status}')
         if self.__status_callback:
             self.__status_callback(new_status)
         
-    def __get_log(self, log_type: LogService) -> LogService:
+    def __get_log_service(self, log_type: LogService) -> LogService:
         return next(log for log in self.__logs_services if isinstance(log, log_type))
     
-    def __get_setting(self, setting_type: SettingService) -> SettingService:
-        service = next(service for service in self.__settings_services if isinstance(service, setting_type))
-        return service.settings
+    def __get_setting_service(self, setting_type: SettingService) -> SettingService:
+        return next(service for service in self.__settings_services if isinstance(service, setting_type))
     
     def __execute_action(self, function, **kargs):
-        logTxt: LogTxt = self.__get_log(log_type=LogTxt)
+        logTxt: LogTxt = self.__get_log_service(log_type=LogTxt)
         if(self.__status == 'PAUSED'):
             while True:
                 if(self.__status=='RUNNING'):
                     break
         elif(self.__status == 'RUNNING'):
             return logTxt.write_and_execute(function, **kargs)
+        
+    def __close_logs(self) -> None:
+        for log in self.__logs_services:
+            log.close()
     
 
 if __name__ == "__main__":
