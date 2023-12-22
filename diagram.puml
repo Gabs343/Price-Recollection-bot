@@ -4,34 +4,163 @@ skinparam {
     ArrowColor SeaGreen
 }
 
-package processes{
-    interface Process{}
+package Bot{
 
-    class Bcra{}
-    class Bna{}
-    class Sap{}
+    package processes{
+        interface Process{}
 
-    abstract Log{}
+        class Bcra{
+            - url: str
+            + open(): None
+            + close(): None
+        }
+        class Bna{
+            - url: str
+            + open(): None
+            + close(): None
+        }
+        class Sap{
+            - app_path: str
+            - process
+            - session
+            - wait: int
+            - pages: int
+            + login(credentials: str): None
+            + set_transaction(transaction: str): None
+            + go_to_main(): None
+            + go_back(loop: int): None
+            + logout(): None
+            + new_register(): None
+            - open_connection(connection: str): None
+        }
 
-    class LogTxt{}
-    class LogXlsx{}
+    }
+
+    class Main{
+        - settings_services: list[SettingService]
+        - logs_services: list[LogService]
+        - bot_name: str
+        - status: str
+        - status_callback: def
+        + start(*args): None
+        + pause(): None
+        + unpause(): None
+        + stop(): None
+        - notify_status(new_status: str): None
+        - get_log_service(log_type: LogService): LogService
+        - get_setting_service(setting_type: SettingService): SettingService
+        - execution_begun(): None
+        - execution_completed(had_error: bool): None
+        - execute_action(function: def, *args): Any
+        - close_logs(): None
+    }
+
+    abstract BotDB{
+        + init(bot_name: str): None
+        + create(): None
+        + create_folder(): None
+        + get_database_folder_path(): str
+        + get(): dict
+        + update(data: dict): None
+        - connect(): None
+        - insert(): None
+    }
+
+    class SettingTable{
+        - setting_table: str
+        - settings: dict
+        + init(bot_name: str, setting_name: str, settings: dict): None
+    }
+
+    abstract SettingService{
+        - settings: dict
+    }
+
+    class BotSetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+    }
+
+    class TaskManagerSetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+        + create_scheduled_task(): str
+        + edit_scheduled_task(): str
+        + delete_scheduled_task(): str
+        - get_python_path(): str
+        - task_exists(): str
+    }
+
+    class SapSetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+    }
+
+    class BNASetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+    }
+
+    class BCRASetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+    }
+
+    abstract LogService{
+        + create(): None
+        + write_info(message: str): None
+        + write_error(message: str, detail: str = None): None
+        + close(): None
+        + create_folder(): None
+    }
+
+    class LogTxt{
+        - path: str
+        - name: str
+        - logger: Logger
+
+        + write_and_execute(function, args): None
+    }
+
+    class LogXlsx{
+        - path: str
+        - name: str
+        - row: int
+        - log: dict
+
+        + write_in_column(column: str, message: str): None
+    }
 }
 
-interface SettingService{}
-class SettingSap{}
-class SettingBna{}
-class SettingBcra{}
-
-Process <|.. Bcra
-Process <|.. Bna
+Process <|.right. Bcra
+Process <|.left. Bna
 Process <|.. Sap
-Process <|.. Log
 
-Log <|.. LogTxt
-Log <|.. LogXlsx
+Main o-left- SettingService
+Main o-right- LogService
+Main o-- Process
 
-SettingService <|.. SettingSap
-SettingService <|.. SettingBna
-SettingService <|.. SettingBcra
+BotDB <|.. SettingTable
+
+SettingService o-left- SettingTable
+SettingService <|.up. BotSetting
+SettingService <|.. TaskManagerSetting
+
+LogService <|.up. LogTxt
+LogService <|.. LogXlsx
+
+SettingService <|.. SapSetting
+SettingService <|.. BNASetting
+SettingService <|.. BCRASetting
 
 @enduml
