@@ -5,11 +5,11 @@ import time
 
 class Sap:
     def __init__(self) -> None:
-        self.__APP_PATH = os.path.join(os.environ['ProgramFiles(x86)'], '\\SAP\\FrontEnd\\SAPgui\\saplogon.exe')
+        self.__APP_PATH: str = os.path.join(os.environ['ProgramFiles(x86)'], '\\SAP\\FrontEnd\\SAPgui\\saplogon.exe')
         self.__process = None
         self.__session = None
-        self.__wait = 1
-        self.__pages = 1
+        self.__wait: int = 1
+        self.__pages: int = 1
         
     def login(self, credentials: dict) -> None:
         connection = self.__open_connection(connection=credentials["connection"])

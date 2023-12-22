@@ -6,12 +6,12 @@ import time
 
 class BcraProcess:
     def __init__(self) -> None:
-        self.url = "https://www.bcra.gob.ar/"
+        self.__url: str = "https://www.bcra.gob.ar/"
         
     def open(self) -> None:
         self.driver = webdriver.Edge()
         self.driver.maximize_window()
-        self.driver.get(self.url)
+        self.driver.get(self.__url)
         self.driver.implicitly_wait(0.5)
         
     def close(self) -> None:

@@ -4,12 +4,12 @@ from selenium.webdriver.remote.webelement import WebElement
 
 class BnaProcess:
     def __init__(self) -> None:
-        self.url = "https://www.bna.com.ar/Personas"
+        self.__url: str = "https://www.bna.com.ar/Personas"
         
     def open(self) -> None:
         self.driver = webdriver.Edge()
         self.driver.maximize_window()
-        self.driver.get(self.url)
+        self.driver.get(self.__url)
         self.driver.implicitly_wait(0.5)
         
     def close(self) -> None:
