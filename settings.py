@@ -140,9 +140,9 @@ class BNASetting(SettingService):
         self.settings = self.__repository.get()
         
     def get_new_settings(self) -> dict:
-        settings: dict = dict.fromkeys(["foreignBills", "foreignExchange"])
-        settings["foreignBills"] = ["Euro", "Real *"]
-        settings["foreignExchange"] = ["Dolar U.S.A", "Libra Esterlina", "Euro"]
+        settings: dict = dict.fromkeys(['foreignBills', 'foreignExchange'])
+        settings['foreignBills'] = ['Euro', 'Real *']
+        settings['foreignExchange'] = ['Dolar U.S.A', 'Libra Esterlina', 'Euro']
         return settings
 
     def update(self) -> None:

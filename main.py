@@ -173,12 +173,10 @@ class Main:
     
     def __execute_action(self, function, **kargs):
         logTxt: LogTxt = self.__get_log_service(log_type=LogTxt)
-        if(self.__status == 'PAUSED'):
-            while True:
-                if(self.__status=='RUNNING'):
-                    break
-        elif(self.__status == 'RUNNING'):
-            return logTxt.write_and_execute(function, **kargs)
+        while self.__status == 'PAUSED':
+            if(self.__status=='RUNNING'):
+                break
+        return logTxt.write_and_execute(function, **kargs)
         
     def __close_logs(self) -> None:
         for log in self.__logs_services:
