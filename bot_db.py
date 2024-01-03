@@ -1,13 +1,25 @@
 import sqlite3
 import ast
+import os
 
 class BotDB:
     
     def __init__(self, bot_name: str) -> None:
         self.__bot_name: str = bot_name
+        self.folder_path: str = self.get_database_folder_path()
+        self.create_folder()
+        
+    def get_database_folder_path(self) -> str:
+        path: str = os.path.abspath(__file__).split("\\")[0:-1]
+        path = '\\'.join(path)
+        return f'{path}\\database'
+        
+    def create_folder(self) -> None:
+        if(not os.path.exists(self.folder_path)):
+            os.makedirs(self.folder_path)
     
     def connect(self) -> None:
-        self.connection = sqlite3.connect(f'{self.__bot_name}.bd')
+        self.connection = sqlite3.connect(f'{self.folder_path}\\{self.__bot_name}.bd')
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
         
@@ -73,14 +85,13 @@ class SettingTable(BotDB):
              
         if(data != None):
             data = dict(data)
-        
             for key, value in data.items():
                 if(type(value) is str):
-                    if('{' == value[0] and '}' == value[:-1]):
+                    if('{' == value[0] and '}' == value[-1]):
                         data[key] = ast.literal_eval(value)
-                    elif('[' == value[0] and ']' == value[:-1]):
+                    elif('[' == value[0] and ']' == value[-1]):
                         data[key] = ast.literal_eval(value)
-                    elif('(' == value[0] and ')' == value[:-1]):
+                    elif('(' == value[0] and ')' == value[-1]):
                         data[key] = ast.literal_eval(value)
             return data
         else: return dict() 
